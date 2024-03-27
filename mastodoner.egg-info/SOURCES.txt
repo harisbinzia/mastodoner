@@ -1,0 +1,10 @@
+setup.py
+mastodoner/__init__.py
+mastodoner/cli.py
+mastodoner/crawler.py
+mastodoner.egg-info/PKG-INFO
+mastodoner.egg-info/SOURCES.txt
+mastodoner.egg-info/dependency_links.txt
+mastodoner.egg-info/entry_points.txt
+mastodoner.egg-info/requires.txt
+mastodoner.egg-info/top_level.txt
