@@ -1,4 +1,10 @@
-from setuptools import setup, find_packages
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    # Handle the case where setuptools is not installed
+    print("Setuptools is required to install this package.")
+    print("Please install setuptools using 'pip install setuptools'.")
+    exit(1)
 
 setup(
     name="mastodoner",
