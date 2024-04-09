@@ -6,13 +6,21 @@ except ImportError:
     print("Please install setuptools using 'pip install setuptools'.")
     exit(1)
 
+import codecs
+
+with codecs.open("mastodoner/version.py", "r", "utf-8") as f:
+    exec(f.read())
+
+with codecs.open("README.md", "r", "utf-8") as f:
+    long_description = f.read()
+
 setup(
     name="mastodoner",
-    version="0.0.1",
+    version=version,
     author="Haris Bin Zia",
     author_email="harisbinzia@hotmail.com",
     description="A package for crawling Mastodon instances",
-    long_description="",
+    long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/harisbinzia/mastodoner",
     packages=find_packages(),
