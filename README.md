@@ -4,7 +4,19 @@ Mastodoner is a command line tool (and Python library) for archiving [Mastodon](
 
 ## Installation
 
+Install the mastodoner with ```pip```:
 
+```
+pip install -U mastodoner
+```
+
+Alternatively, you can also clone the latest version from the [repository](https://github.com/harisbinzia/mastodoner) and install it directly from the source code:
+
+```
+pip install -e .
+```
+
+**Note: Mastodoner requires Python 3.8 or higher.**
 
 ## Intended Use
 
