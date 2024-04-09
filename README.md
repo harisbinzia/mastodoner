@@ -96,6 +96,18 @@ optional arguments:
   --only-pinned        Optional argument used with --statuses to filter pinned statuses only
 ```
 
+## Python Usage
+
+You can also use Mastodoner as a Python library. For example, here's how you can crawl a user's info:
+
+```python
+from mastodoner import Crawler
+crawler = Crawler()
+user_info = crawler.user_lookup('ignactro@mastodon.social')
+```
+
+For more examples of using Mastodoner as a Python library, check out the Colab. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1uWbTTBqdcC-kE40l40-pSt7yq_wJZ1-_?usp=sharing)
+
 ## Intended Use
 
 Mastodoner is developed to support academic research. The data collected through Mastodoner should only be used for research purposes. Mastodoner gathers all data through publicly accessible endpoints and strictly adheres to the rate limits set for each endpoint.
