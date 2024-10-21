@@ -44,7 +44,7 @@ def main():
     instance_parser.add_argument("--only-remote", action="store_true", help="Optional argument used with --timeline to crawl only remote statuses")
     instance_parser.add_argument("--only-media", action="store_true", help="Optional argument used with --timeline to filter out statuses without attachments")
     instance_parser.add_argument("--limit", type=int, help="Optional argument used with --trends, --directory or --timeline to limit the response")
-    instance_parser.add_argument("output_file", type=validate_output_file, help="Output file to save the instance directory (JSON Lines format)")
+    instance_parser.add_argument("output_file", type=validate_output_file, help="Output file (JSON Lines format)")
 
     # Create the user subparser
     user_parser = subparsers.add_parser("user", help="Crawl user endpoints")
@@ -58,7 +58,14 @@ def main():
     user_parser.add_argument("--exclude-replies", action="store_true", help="Optional argument used with --statuses to filter out statuses in reply to a different user")
     user_parser.add_argument("--exclude-reblogs", action="store_true", help="Optional argument used with --statuses to filter out reblogs (reposts)")
     user_parser.add_argument("--only-pinned", action="store_true", help="Optional argument used with --statuses to filter pinned statuses only")
-    user_parser.add_argument("output_file", type=validate_output_file, help="Output file to save the user profile (JSON Lines format)")
+    user_parser.add_argument("output_file", type=validate_output_file, help="Output file (JSON Lines format)")
+
+    # Create the status subparser
+    status_parser = subparsers.add_parser("status", help="Crawl status endpoints")
+    status_parser.add_argument("--instance-url", required=True, help="Base URL of the Mastodon instance e.g. mastodon.online")
+    status_parser.add_argument("--status-id", required=True, help="ID of the status on Mastodon instance")
+    status_parser.add_argument("--info", action="store_true", required=True, help="Crawl information about the status")
+    status_parser.add_argument("output_file", type=validate_output_file, help="Output file (JSON Lines format)")
 
     # Create the discover subparser
     discover_parser = subparsers.add_parser("discover", help="Discover instances")
@@ -69,7 +76,7 @@ def main():
     discover_parser.add_argument("--include-closed", action="store_true", help="Include instances with closed registrations")
     discover_parser.add_argument("--min-users", type=int, help="Minimum users discovered instances must have. Value greater than or equal to 1")
     discover_parser.add_argument("--max-users", type=int, help="Maximum users discovered instances must have. Value greater than or equal to 1")
-    discover_parser.add_argument("output_file", type=validate_output_file, help="Output file to save the discovered instances (JSON Lines format)")
+    discover_parser.add_argument("output_file", type=validate_output_file, help="Output file (JSON Lines format)")
     
     args = parser.parse_args()
 
@@ -228,6 +235,11 @@ def main():
             else:
                 items = crawler.user_following_all(args.username)
 
+    elif args.command == "status":
+
+        if args.info:
+            items = crawler.status_lookup(args.instance_url, args.status_id)
+            
     elif args.command == "discover":
 
         instance_social_bearer_token=None

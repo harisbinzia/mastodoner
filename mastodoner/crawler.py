@@ -1058,3 +1058,40 @@ class Crawler:
                 return items
                 
         return items
+
+    def status_lookup(self, instance_url, status_id):
+
+        # Check if instance_url is a string
+        if not isinstance(instance_url, str):
+            raise ValueError("Invalid value for 'instance_url'. It must be a string.")
+
+        # Check if status_id is a string
+        if not isinstance(status_id, str):
+            raise ValueError("Invalid value for 'status_id'. It must be a string.")
+        
+        try:            
+            # Check rate limit for this instance
+            remaining_requests, reset_time = self.rate_limits.get(instance_url, (None, None))
+            if remaining_requests is not None and remaining_requests < 5:
+                wait_time = (reset_time - datetime.utcnow()).total_seconds() + 1
+                if wait_time > 0:
+                    self.logger.info(f"Waiting for {wait_time} seconds to reset rate limit for instance {instance_url}")
+                    time.sleep(wait_time)
+    
+            response = requests.get(f"https://{instance_url}/api/v1/statuses/{status_id}", timeout=120)
+                
+            remaining_requests = int(response.headers.get('X-RateLimit-Remaining', 0))
+            reset_time_str = response.headers.get('X-RateLimit-Reset')
+            reset_time = datetime.fromisoformat(reset_time_str[:-1])
+            self.rate_limits[instance_url] = (remaining_requests, reset_time)
+    
+            if response.status_code == 200:
+                self.logger.info(f"Crawled information of status {status_id} from instance {instance_url}.")
+                return [response.json()]
+            else:
+                self.logger.error(f"Failed to fetch information of status {status_id} from instance {instance_url}. Status code: {response.status_code}")
+                return []
+    
+        except Exception as e:
+            self.logger.error(f"Error occurred while crawling information of status {status_id} from instance {instance_url}: {str(e)}")
+            return []
