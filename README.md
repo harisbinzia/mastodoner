@@ -21,21 +21,23 @@ pip install -e .
 ## CLI Usage
 
 ```
-usage: mastodoner [-h] {version,instance,user} ...
+usage: mastodoner [-h] {version,instance,user,status,discover} ...
 
-Crawl Mastodon instance endpoints and save to a JSON Lines file.
+Crawl public data from Mastodon instance and save to a JSON Lines file.
 
 positional arguments:
-  {version,instance,user}
+  {version,instance,user,status,discover}
     version             Check mastodoner version
     instance            Crawl instance endpoints
     user                Crawl user endpoints
+    status              Crawl status endpoints
+    discover            Discover instances
 
 optional arguments:
   -h, --help            show this help message and exit
 ```
 
-There are two main commands: ```instance``` and ```user```. Here is how you use each of them:
+There are four main commands: ```instance```, ```user```, ```status```, ```discover```. Here is how you use each of them:
 
 * ```instance```
 
@@ -46,7 +48,7 @@ usage: mastodoner instance [-h] --instance-url INSTANCE_URL [--node-info] [--inf
                            output_file
 
 positional arguments:
-  output_file           Output file to save the instance directory (JSON Lines format)
+  output_file           Output file (JSON Lines format)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -80,7 +82,7 @@ usage: mastodoner user [-h] --username USERNAME [--info] [--statuses] [--followe
                        output_file
 
 positional arguments:
-  output_file          Output file to save the user profile (JSON Lines format)
+  output_file          Output file (JSON Lines format)
 
 optional arguments:
   -h, --help           show this help message and exit
@@ -96,6 +98,48 @@ optional arguments:
   --only-pinned        Optional argument used with --statuses to filter pinned statuses only
 ```
 
+* ```status```
+
+```
+usage: mastodoner status [-h] --instance-url INSTANCE_URL --status-id STATUS_ID --info output_file
+
+positional arguments:
+  output_file           Output file (JSON Lines format)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --instance-url INSTANCE_URL
+                        Base URL of the Mastodon instance e.g. mastodon.online
+  --status-id STATUS_ID
+                        ID of the status on Mastodon instance
+  --info                Crawl information about the status
+```
+
+* ```discover```
+
+```
+usage: mastodoner discover [-h] [--bearer-token BEARER_TOKEN] [--count COUNT] [--include-dead] [--include-down] [--include-closed]
+                           [--min-users MIN_USERS] [--max-users MAX_USERS]
+                           output_file
+
+positional arguments:
+  output_file           Output file (JSON Lines format)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --bearer-token BEARER_TOKEN
+                        Bearer token for the 'instances.social' API. Alternatively, bearer token can also be provided by setting the
+                        'INSTANCES_SOCIAL_TOKEN' environment variable. You can get the token from 'https://instances.social/api/doc/'
+  --count COUNT         Number of instances to discover. Value between 1 and 10000 (default: 0 i.e. all instances)
+  --include-dead        Include dead (down for at least two weeks) instances
+  --include-down        Include down instances
+  --include-closed      Include instances with closed registrations
+  --min-users MIN_USERS
+                        Minimum users discovered instances must have. Value greater than or equal to 1
+  --max-users MAX_USERS
+                        Maximum users discovered instances must have. Value greater than or equal to 1
+```
+
 ## Python Usage
 
 You can also use Mastodoner as a Python library. For example, here's how you can crawl a user's info:
@@ -106,7 +150,7 @@ crawler = Crawler()
 user_info = crawler.user_lookup('ignactro@mastodon.social')
 ```
 
-For more examples of using Mastodoner as a Python library, check out the Colab. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1uWbTTBqdcC-kE40l40-pSt7yq_wJZ1-_?usp=sharing)
+For more examples of using Mastodoner as a Python library, check out the Colab. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Feb8ysG6dy1si1o1C4sAyIspVUsqNKF6?usp=sharing)
 
 ## Intended Use
 
@@ -115,3 +159,24 @@ Mastodoner is developed to support academic research. The data collected through
 ## Contributing
 
 Contributions are welcome! For small bug fixes and minor improvements, feel free to just open a PR. For larger changes, please open an issue first so that other contributors can discuss your plan, avoid duplicated work, and ensure it aligns with the goals of the project. Thanks!
+
+## Reference
+
+If you use this tool in any of your work, please cite below paper.
+```
+@inproceedings{10.1145/3627673.3679217,
+author = {Zia, Haris Bin and Castro, Ignacio and Tyson, Gareth},
+title = {Mastodoner: A Command-line Tool and Python Library for Public Data Collection from Mastodon},
+year = {2024},
+isbn = {9798400704369},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3627673.3679217},
+doi = {10.1145/3627673.3679217},
+booktitle = {Proceedings of the 33rd ACM International Conference on Information and Knowledge Management},
+pages = {5314–5317},
+numpages = {4},
+location = {Boise, ID, USA},
+series = {CIKM '24}
+}
+```
