@@ -1,6 +1,7 @@
 import logging
 import time
 import requests
+import os
 from datetime import datetime
 
 class Crawler:
@@ -10,6 +11,67 @@ class Crawler:
         self.logger = logging.getLogger(__name__)
 
         self.rate_limits = {}
+
+    def discover_instances(self, instance_social_bearer_token=None, count=0, include_dead=False, include_down=False, include_closed=False, min_users=0, max_users=0):
+
+        bearer_token = None
+        
+        # Check bearer_token
+        if instance_social_bearer_token and isinstance(instance_social_bearer_token, str):
+            bearer_token = instance_social_bearer_token
+        elif os.getenv('INSTANCES_SOCIAL_TOKEN'):
+            bearer_token = os.getenv('INSTANCES_SOCIAL_TOKEN')
+        else:
+            raise ValueError("Valid 'instances.social' bearer token must be provided either as an argument or via the 'INSTANCES_SOCIAL_TOKEN' environment variable. You can get the token from 'https://instances.social/api/doc/'")
+
+        # Check if count is an integer and non-negative
+        if not isinstance(count, int) or count < 0 or count > 10000:
+            raise ValueError("Invalid value for 'count'. It must be a non-negative integer between 0 and 10000.")
+
+        # Check if include_dead is a boolean
+        if not isinstance(include_dead, bool):
+            raise ValueError("Invalid value for 'include_dead'. It must be a boolean.")
+
+        # Check if include_down is a boolean
+        if not isinstance(include_down, bool):
+            raise ValueError("Invalid value for 'include_down'. It must be a boolean.")
+
+        # Check if include_closed is a boolean
+        if not isinstance(include_closed, bool):
+            raise ValueError("Invalid value for 'include_closed'. It must be a boolean.")
+
+        # Check if min_users is an integer and non-negative
+        if not isinstance(min_users, int) or min_users < 0:
+            raise ValueError("Invalid value for 'min_users'. It must be a non-negative integer.")
+
+        # Check if max_users is an integer and non-negative
+        if not isinstance(max_users, int) or max_users < 0:
+            raise ValueError("Invalid value for 'max_users'. It must be a non-negative integer.")
+
+        # Check if max_users < min_users
+        if max_users > 0 and max_users < min_users:
+            raise ValueError("Invalid value for 'max_users'. It must be a greater than or equal to 'min_users'.")
+
+        include_dead = str(include_dead).lower()
+        include_down = str(include_down).lower()
+        include_closed = str(include_closed).lower()
+
+        try:
+            headers = {"Authorization": "Bearer " + bearer_token}
+            response = requests.get(f"https://instances.social/api/1.0/instances/list?count={count}&include_dead={include_dead}&include_down={include_down}&include_closed={include_closed}&min_users={min_users}&max_users={max_users}", headers=headers, timeout=120)
+
+            if response.status_code == 200:
+                instances = response.json()['instances']
+                self.logger.info(f"Discovered {len(instances)} instances.")
+                return instances
+
+            else:
+                self.logger.error(f"Failed to discover instances. Status code: {response.status_code}")
+                return []
+
+        except Exception as e:
+            self.logger.error(f"Error occurred while discovering instances: {str(e)}")
+            return []
 
     def instance_nodeinfo(self, instance_url):
 

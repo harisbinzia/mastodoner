@@ -19,7 +19,7 @@ def write_output_file(output_file, items):
 def main():
     
     # Create the parser
-    parser = argparse.ArgumentParser(description="Crawl Mastodon instance endpoints and save to a JSON Lines file.")
+    parser = argparse.ArgumentParser(description="Crawl public data from Mastodon instance and save to a JSON Lines file.")
     subparsers = parser.add_subparsers(dest="command")
 
     # Create the version subparser
@@ -60,6 +60,17 @@ def main():
     user_parser.add_argument("--only-pinned", action="store_true", help="Optional argument used with --statuses to filter pinned statuses only")
     user_parser.add_argument("output_file", type=validate_output_file, help="Output file to save the user profile (JSON Lines format)")
 
+    # Create the discover subparser
+    discover_parser = subparsers.add_parser("discover", help="Discover instances")
+    discover_parser.add_argument("--bearer-token", help="Bearer token for the 'instances.social' API. Alternatively, bearer token can also be provided by setting the 'INSTANCES_SOCIAL_TOKEN' environment variable. You can get the token from 'https://instances.social/api/doc/'")
+    discover_parser.add_argument("--count", type=int, help="Number of instances to discover. Value between 1 and 10000 (default: 0 i.e. all instances)")
+    discover_parser.add_argument("--include-dead", action="store_true", help="Include dead (down for at least two weeks) instances")
+    discover_parser.add_argument("--include-down", action="store_true", help="Include down instances")
+    discover_parser.add_argument("--include-closed", action="store_true", help="Include instances with closed registrations")
+    discover_parser.add_argument("--min-users", type=int, help="Minimum users discovered instances must have. Value greater than or equal to 1")
+    discover_parser.add_argument("--max-users", type=int, help="Maximum users discovered instances must have. Value greater than or equal to 1")
+    discover_parser.add_argument("output_file", type=validate_output_file, help="Output file to save the discovered instances (JSON Lines format)")
+    
     args = parser.parse_args()
 
     crawler = Crawler()
@@ -215,7 +226,40 @@ def main():
             if args.limit is not None:
                 items = crawler.user_following(args.username, args.limit)
             else:
-                items = crawler.user_following_all(args.username)               
+                items = crawler.user_following_all(args.username)
+
+    elif args.command == "discover":
+
+        instance_social_bearer_token=None
+        count=0
+        include_dead=False
+        include_down=False
+        include_closed=False
+        min_users=0
+        max_users=0
+
+        if args.bearer_token:
+            instance_social_bearer_token = args.bearer_token
+
+        if args.count:
+            count = args.count
+
+        if args.include_dead:
+            include_dead = True
+
+        if args.include_down:
+            include_down = True
+
+        if args.include_closed:
+            include_closed = True
+
+        if args.min_users:
+            min_users = args.min_users
+
+        if args.max_users:
+            max_users = args.max_users
+
+        items = crawler.discover_instances(instance_social_bearer_token, count, include_dead, include_down, include_closed, min_users, max_users)
 
     # Write output to the output file
     if len(items) > 0:
